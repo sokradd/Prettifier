@@ -5,7 +5,7 @@ import fileio.CSVReader;
 import fileio.InputFileReader;
 import fileio.OutputWriter;
 import text_transform.TextFormatter;
-import text_transform.WhitespaceCleaner; // Импортируем WhitespaceCleaner
+import text_transform.WhitespaceCleaner; 
 import text_transform.AirportCodeConverter;
 
 import java.io.IOException;
@@ -36,31 +36,30 @@ public class Prettifier {
 
         CSVReader csvReader = new CSVReader();
         TextFormatter textFormatter = new TextFormatter();
-        WhitespaceCleaner whitespaceCleaner = new WhitespaceCleaner(); // Создаем экземпляр WhitespaceCleaner
-        AirportCodeConverter airportCodeConverter = null; // Объявляем AirportCodeConverter
-
+        WhitespaceCleaner whitespaceCleaner = new WhitespaceCleaner(); 
+        AirportCodeConverter airportCodeConverter = null;
         try {
             csvReader.readAirportData(airportLookUpPath);
-            airportCodeConverter = new AirportCodeConverter(csvReader.getAirportData()); // Инициализируем AirportCodeConverter
+            airportCodeConverter = new AirportCodeConverter(csvReader.getAirportData()); 
 
             InputFileReader inputFileReader = new InputFileReader();
             inputFileReader.readInputData(inputFilePath);
 
             List<String> formattedInputData = new ArrayList<>();
             for (String line : inputFileReader.getInputData()) {
-                String cleanedLine = whitespaceCleaner.cleanWhitespace(line); // Очищаем пробелы
+                String cleanedLine = whitespaceCleaner.cleanWhitespace(line); 
                 String formattedLine = textFormatter.formatText(cleanedLine);
 
-                // Заменяем IATA коды
-                formattedLine = replaceAirportCodes(formattedLine, airportCodeConverter, true); // Заменяем IATA
-                // Заменяем ICAO коды
-                formattedLine = replaceAirportCodes(formattedLine, airportCodeConverter, false); // Заменяем ICAO
+                
+                formattedLine = replaceAirportCodes(formattedLine, airportCodeConverter, true);
+                
+                formattedLine = replaceAirportCodes(formattedLine, airportCodeConverter, false);
 
-                formattedInputData.add(formattedLine); // Добавляем отформатированную строку
+                formattedInputData.add(formattedLine); 
             }
 
             OutputWriter outputWriter = new OutputWriter();
-            outputWriter.writeToFile(formattedInputData, outputFilePath); // Пишем отформатированные данные в выходной файл
+            outputWriter.writeToFile(formattedInputData, outputFilePath); 
 
         } catch (IOException e) {
             System.err.println("Error in reading file. " + e.getMessage());
@@ -77,7 +76,7 @@ public class Prettifier {
     }
 
     private static String replaceAirportCodes(String line, AirportCodeConverter converter, boolean isIATA) {
-        // Определяем регулярное выражение для IATA и ICAO кодов
+        
         String regex = isIATA ? "#(\\w{3})" : "##(\\w{4})";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(line);
@@ -86,9 +85,9 @@ public class Prettifier {
         while (matcher.find()) {
             String code = matcher.group(1);
             String replacement = isIATA ? converter.convertIATACode(code) : converter.convertICAOCode(code);
-            matcher.appendReplacement(sb, replacement != null ? replacement : matcher.group(0)); // Если замена null, оставляем оригинал
+            matcher.appendReplacement(sb, replacement != null ? replacement : matcher.group(0)); 
         }
-        matcher.appendTail(sb); // Завершаем замену
+        matcher.appendTail(sb); 
 
         return sb.toString();
     }
